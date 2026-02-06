@@ -1,0 +1,102 @@
+* {
+  box-sizing: border-box;
+  font-family: 'Poppins', 'Inter', sans-serif;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ======================
+   CARD LOGIN
+====================== */
+.login-container {
+  background: #ffffff;
+  width: 100%;
+  max-width: 380px;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+/* ======================
+   TEXTOS
+====================== */
+.login-container h1 {
+  margin-bottom: 5px;
+  color: #1e3a8a;
+}
+
+.subtitulo {
+  margin-bottom: 25px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* ======================
+   FORM
+====================== */
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form input {
+  padding: 12px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 15px;
+}
+
+form input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* ======================
+   BOTÃO
+====================== */
+form button {
+  padding: 12px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+form button:hover {
+  background: #1e40af;
+}
+
+/* ======================
+   MENSAGEM
+====================== */
+.mensagem {
+  display: none;
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.mensagem.erro {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.mensagem.sucesso {
+  background: #dcfce7;
+  color: #166534;
+}

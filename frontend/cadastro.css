@@ -1,0 +1,150 @@
+* {
+  box-sizing: border-box;
+  font-family: 'Poppins', 'Roboto', sans-serif;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ======================
+   CARD CADASTRO
+====================== */
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  background: #ffffff;
+  padding: 32px 28px;
+  border-radius: 14px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.login-container h1 {
+  color: #2a5d9f;
+  margin-bottom: 6px;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.subtitulo {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 22px;
+}
+
+/* ======================
+   FORM
+====================== */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+form input {
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+form input::placeholder {
+  color: #9ca3af;
+}
+
+form input:focus {
+  outline: none;
+  border-color: #2a5d9f;
+  box-shadow: 0 0 0 2px rgba(42, 93, 159, 0.15);
+}
+
+/* ======================
+   BOTÃO
+====================== */
+form button {
+  margin-top: 10px;
+  padding: 13px;
+  background: linear-gradient(135deg, #2a5d9f, #1e4a80);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+
+form button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(42, 93, 159, 0.35);
+  opacity: 0.95;
+}
+
+form button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* ======================
+   MENSAGENS
+====================== */
+.mensagem {
+  display: none;
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.mensagem.erro {
+  background: #fde2e2;
+  color: #991b1b;
+}
+
+.mensagem.sucesso {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* ======================
+   LINK
+====================== */
+.link {
+  margin-top: 18px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.link a {
+  color: #2a5d9f;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link a:hover {
+  text-decoration: underline;
+}
+
+/* ======================
+   ANIMAÇÃO
+====================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

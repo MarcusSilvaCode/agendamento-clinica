@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Clínica Saúde+ | Agendamentos</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <h1>Clínica Saúde+</h1>
+      <button id="btnLogout">Sair</button>
+    </header>
+
+    <p class="bemvindo" id="bemvindo"></p>
+
+    <main class="container">
+      <section class="card">
+        <h2>Agendar Consulta</h2>
+
+        <div id="mensagem" class="mensagem"></div>
+
+        <form id="formAgendamento">
+          <input type="hidden" id="id" />
+
+          <input type="date" id="data" required />
+          <input type="time" id="horario" required />
+
+          <label for="especialidade">Especialidade</label>
+          <select id="especialidade" required>
+            <option value="">Selecione a especialidade</option>
+          </select>
+
+          <label for="medico">Médico</label>
+          <select id="medico" required disabled>
+            <option value="">Selecione um médico</option>
+          </select>
+
+          <button type="submit" class="btn-primario">Salvar Agendamento</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Agendamentos</h2>
+        <ul id="listaAgendamentos"></ul>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
