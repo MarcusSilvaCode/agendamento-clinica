@@ -1,10 +1,9 @@
-/* ==========================
+/* 
    ELEMENTOS
-========================== */
+ */
 const form = document.getElementById("formAgendamento");
 const lista = document.getElementById("listaAgendamentos");
 const mensagemDiv = document.getElementById("mensagem");
-const inputId = document.getElementById("id");
 const btnLogout = document.getElementById("btnLogout");
 
 const selectEspecialidade = document.getElementById("especialidade");
@@ -12,30 +11,30 @@ const selectMedico = document.getElementById("medico");
 
 const bemvindo = document.getElementById("bemvindo");
 
-/* ==========================
+/* 
    CONFIG
-========================== */
-const API_URL = "http://127.0.0.1:3000/agendamentos";
+*/
+const API_URL = "http://127.0.0.1:3000/agendamento";
 const MEDICOS_URL = "http://127.0.0.1:3000/medicos";
 
 const token = localStorage.getItem("token");
 const nomeUsuario = localStorage.getItem("usuarioNome");
 
-/* ==========================
+/* 
    LOGIN
-========================== */
+ */
 if (bemvindo && nomeUsuario) {
   bemvindo.innerText = `Bem-vindo, ${nomeUsuario}!`;
 }
 
 if (!token) {
   alert("Sessão expirada. Faça login novamente.");
-  window.location.href = "login.html";
+  window.location.href = "/frontend/auth/login.html";
 }
 
-/* ==========================
+/*
    UTIL
-========================== */
+ */
 function mostrarMensagem(texto, erro = false) {
   if (!mensagemDiv) return;
 
@@ -53,15 +52,15 @@ function tratarErroAuth(res) {
   if (res.status === 401) {
     localStorage.removeItem("token");
     alert("Sessão expirada. Faça login novamente.");
-    window.location.href = "login.html";
+    window.location.href = "/frontend/auth/login.html";
     return true;
   }
   return false;
 }
 
-/* ==========================
+/* 
    ESPECIALIDADES
-========================== */
+ */
 async function carregarEspecialidades() {
   try {
     const res = await fetch(MEDICOS_URL, {
@@ -72,9 +71,7 @@ async function carregarEspecialidades() {
 
     const medicos = await res.json();
 
-    const especialidades = [
-      ...new Set(medicos.map((m) => m.especialidade)),
-    ];
+    const especialidades = [...new Set(medicos.map((m) => m.especialidade))];
 
     selectEspecialidade.innerHTML =
       '<option value="">Selecione a especialidade</option>';
@@ -85,14 +82,15 @@ async function carregarEspecialidades() {
       option.textContent = esp;
       selectEspecialidade.appendChild(option);
     });
-  } catch {
+  } catch (err) {
+    console.error(err);
     mostrarMensagem("Erro ao carregar especialidades", true);
   }
 }
 
-/* ==========================
+/* 
    MÉDICOS POR ESPECIALIDADE
-========================== */
+ */
 async function carregarMedicosPorEspecialidade(especialidade) {
   try {
     const res = await fetch(MEDICOS_URL, {
@@ -103,12 +101,9 @@ async function carregarMedicosPorEspecialidade(especialidade) {
 
     const medicos = await res.json();
 
-    const filtrados = medicos.filter(
-      (m) => m.especialidade === especialidade
-    );
+    const filtrados = medicos.filter((m) => m.especialidade === especialidade);
 
-    selectMedico.innerHTML =
-      '<option value="">Selecione um médico</option>';
+    selectMedico.innerHTML = '<option value="">Selecione um médico</option>';
     selectMedico.disabled = false;
 
     filtrados.forEach((medico) => {
@@ -117,19 +112,19 @@ async function carregarMedicosPorEspecialidade(especialidade) {
       option.textContent = medico.nome;
       selectMedico.appendChild(option);
     });
-  } catch {
+  } catch (err) {
+    console.error(err);
     mostrarMensagem("Erro ao carregar médicos", true);
   }
 }
 
-/* ==========================
+/* 
    EVENTOS SELECT
-========================== */
+*/
 selectEspecialidade.addEventListener("change", () => {
   const especialidade = selectEspecialidade.value;
 
-  selectMedico.innerHTML =
-    '<option value="">Selecione um médico</option>';
+  selectMedico.innerHTML = '<option value="">Selecione um médico</option>';
   selectMedico.disabled = true;
 
   if (!especialidade) return;
@@ -137,9 +132,9 @@ selectEspecialidade.addEventListener("change", () => {
   carregarMedicosPorEspecialidade(especialidade);
 });
 
-/* ==========================
+/* 
    LISTAR AGENDAMENTOS
-========================== */
+ */
 async function carregarAgendamentos() {
   lista.innerHTML = "<li>Carregando...</li>";
 
@@ -159,30 +154,36 @@ async function carregarAgendamentos() {
       return;
     }
 
-    agendamentos.forEach((ag) => {
-      const li = document.createElement("li");
-      const data = new Date(ag.data).toLocaleDateString("pt-BR");
+agendamentos.forEach((ag) => {
+  const li = document.createElement("li");
 
-      li.innerHTML = `
-        <strong>${ag.medico_nome}</strong>
-        <div>${ag.medico_especialidade}</div>
-        <div>${data} às ${ag.horario}</div>
+  // 🔥 Adiciona classe baseada no status
+  li.classList.add("status-" + ag.status);
 
-        <div class="acoes">
-          <button class="btn-excluir" data-id="${ag.id}">Excluir</button>
-        </div>
-      `;
+  const data = new Date(ag.data).toLocaleDateString("pt-BR");
 
-      lista.appendChild(li);
-    });
-  } catch {
+  li.innerHTML = `
+    <strong>${ag.medico_nome}</strong>
+    <div>${ag.medico_especialidade}</div>
+    <div>${data} às ${ag.hora}</div>
+    <div class="status-badge">${ag.status.toUpperCase()}</div>
+
+    <div class="acoes">
+      <button class="btn-excluir" data-id="${ag.id}">Excluir</button>
+    </div>
+  `;
+
+  lista.appendChild(li);
+});
+  } catch (err) {
+    console.error(err);
     mostrarMensagem("Erro ao buscar agendamentos", true);
   }
 }
 
-/* ==========================
+/* 
    CRIAR AGENDAMENTO
-========================== */
+ */
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -199,7 +200,7 @@ form.addEventListener("submit", async (e) => {
   const agendamento = {
     medico_id: selectMedico.value,
     data: document.getElementById("data").value,
-    horario: document.getElementById("horario").value,
+    hora: document.getElementById("horario").value,
   };
 
   try {
@@ -213,21 +214,27 @@ form.addEventListener("submit", async (e) => {
     });
 
     if (tratarErroAuth(res)) return;
-    if (!res.ok) throw new Error();
+
+    if (!res.ok) {
+      const erro = await res.json();
+      console.error("Erro backend:", erro);
+      throw new Error();
+    }
 
     mostrarMensagem("Agendamento criado com sucesso!");
     form.reset();
     selectMedico.disabled = true;
 
     carregarAgendamentos();
-  } catch {
+  } catch (err) {
+    console.error(err);
     mostrarMensagem("Erro ao salvar agendamento", true);
   }
 });
 
-/* ==========================
+/* 
    EXCLUIR
-========================== */
+ */
 lista.addEventListener("click", async (e) => {
   const id = e.target.dataset.id;
   if (!id) return;
@@ -245,22 +252,24 @@ lista.addEventListener("click", async (e) => {
 
     mostrarMensagem("Agendamento excluído!");
     carregarAgendamentos();
-  } catch {
+  } catch (err) {
+    console.error(err);
     mostrarMensagem("Erro ao excluir agendamento", true);
   }
 });
 
-/* ==========================
+/* 
    LOGOUT
-========================== */
+ */
 btnLogout.addEventListener("click", () => {
   localStorage.removeItem("token");
-  window.location.href = "login.html";
+  localStorage.removeItem("usuarioNome");
+  window.location.href = "/frontend/auth/login.html";
 });
 
-/* ==========================
+/* 
    START
-========================== */
+ */
 selectMedico.disabled = true;
 carregarEspecialidades();
 carregarAgendamentos();

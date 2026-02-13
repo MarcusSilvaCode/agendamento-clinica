@@ -39,7 +39,7 @@ form.addEventListener('submit', async e => {
     mostrarMensagem('Cadastro realizado com sucesso!');
 
     setTimeout(() => {
-      window.location.href = 'login.html';
+      window.location.href = '/frontend/auth/login.html';
     }, 1500);
 
   } catch (err) {

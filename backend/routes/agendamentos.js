@@ -1,32 +1,34 @@
-const express = require('express');
-const db = require('../db/connection');
-const authMiddleware = require('../middlewares/authMiddleware');
+const express = require("express");
+const db = require("../db/connection");
+const authMiddleware = require("../middlewares/authMiddleware");
+const verificarAdmin = require("../middlewares/adminMiddleware");
 
 const router = express.Router();
 
 /* =========================
-   LISTAR AGENDAMENTOS
+   LISTAR AGENDAMENTOS DO USUÁRIO
 ========================= */
-router.get('/', authMiddleware, (req, res) => {
+router.get("/", authMiddleware, (req, res) => {
   const usuario_id = req.usuarioId;
 
   const sql = `
     SELECT 
       a.id,
       a.data,
-      a.horario,
+      a.hora,
+      a.status,
       m.nome AS medico_nome,
       m.especialidade AS medico_especialidade
-    FROM agendamentos a
-    JOIN medicos m ON m.id = a.medico_id
+    FROM agendamento a
+    JOIN medico m ON m.id = a.medico_id
     WHERE a.usuario_id = ?
-    ORDER BY a.data, a.horario
+    ORDER BY a.data, a.hora
   `;
 
   db.query(sql, [usuario_id], (err, results) => {
     if (err) {
-      console.error('ERRO MYSQL:', err);
-      return res.status(500).json({ erro: 'Erro ao buscar agendamentos' });
+      console.error("ERRO MYSQL:", err);
+      return res.status(500).json({ erro: "Erro ao buscar agendamentos" });
     }
 
     res.json(results);
@@ -36,24 +38,15 @@ router.get('/', authMiddleware, (req, res) => {
 /* =========================
    CRIAR AGENDAMENTO
 ========================= */
-router.post('/', authMiddleware, (req, res) => {
-  console.log("===== NOVO AGENDAMENTO =====");
-  console.log("BODY:", req.body);
-  console.log("USUARIO_ID:", req.usuarioId);
-
+router.post("/", authMiddleware, (req, res) => {
   const usuario_id = req.usuarioId;
-  const { medico_id, data, horario } = req.body;
+  const { medico_id, data, hora } = req.body;
 
-  // 1️⃣ valida campos obrigatórios
-  if (!usuario_id || !medico_id || !data || !horario) {
+  if (!usuario_id || !medico_id || !data || !hora) {
     return res.status(400).json({
-      erro: 'Preencha todos os campos'
+      erro: "Preencha todos os campos",
     });
   }
-
-  /* ======================================================
-     2️⃣ VALIDAÇÃO CORRETA DE DATA E HORÁRIO (SEM FUSO)
-  ====================================================== */
 
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
@@ -61,114 +54,95 @@ router.post('/', authMiddleware, (req, res) => {
   const dataAgendamento = new Date(data);
   dataAgendamento.setHours(0, 0, 0, 0);
 
-  // ❌ data no passado
   if (dataAgendamento < hoje) {
     return res.status(400).json({
-      erro: 'Não é possível agendar para uma data no passado'
+      erro: "Não é possível agendar para uma data no passado",
     });
   }
 
-  // ❌ mesmo dia, horário no passado
   if (dataAgendamento.getTime() === hoje.getTime()) {
-    const [hora, minuto] = horario.split(':').map(Number);
-
+    const [horaAg, minutoAg] = hora.split(":").map(Number);
     const agora = new Date();
+
     const minutosAgora = agora.getHours() * 60 + agora.getMinutes();
-    const minutosAgendamento = hora * 60 + minuto;
+    const minutosAgendamento = horaAg * 60 + minutoAg;
 
     if (minutosAgendamento <= minutosAgora) {
       return res.status(400).json({
-        erro: 'Não é possível agendar para um horário no passado'
+        erro: "Não é possível agendar para um horário no passado",
       });
     }
   }
 
-  /* ======================================================
-     3️⃣ VERIFICAR SE MÉDICO JÁ TEM HORÁRIO OCUPADO
-  ====================================================== */
-
   const sqlVerificar = `
-    SELECT id FROM agendamentos
+    SELECT id FROM agendamento
     WHERE medico_id = ?
       AND data = ?
-      AND horario = ?
+      AND hora = ?
     LIMIT 1
   `;
 
-  db.query(
-    sqlVerificar,
-    [medico_id, data, horario],
-    (err, resultados) => {
-      if (err) {
-        console.error('ERRO MYSQL (verificação):', err);
-        return res.status(500).json({
-          erro: 'Erro ao verificar disponibilidade do médico'
-        });
-      }
-
-      if (resultados.length > 0) {
-        return res.status(400).json({
-          erro: 'Este médico já possui um agendamento nesse horário'
-        });
-      }
-
-      /* ======================================================
-         4️⃣ INSERIR AGENDAMENTO
-      ====================================================== */
-
-      const sqlInsert = `
-        INSERT INTO agendamentos (usuario_id, medico_id, data, horario)
-        VALUES (?, ?, ?, ?)
-      `;
-
-      db.query(
-        sqlInsert,
-        [usuario_id, medico_id, data, horario],
-        (err, result) => {
-          if (err) {
-            console.error('ERRO MYSQL (insert):', err);
-            return res.status(500).json({
-              erro: 'Erro ao salvar agendamento'
-            });
-          }
-
-          res.status(201).json({
-            mensagem: 'Agendamento criado com sucesso',
-            id: result.insertId
-          });
-        }
-      );
+  db.query(sqlVerificar, [medico_id, data, hora], (err, resultados) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        erro: "Erro ao verificar disponibilidade",
+      });
     }
-  );
+
+    if (resultados.length > 0) {
+      return res.status(400).json({
+        erro: "Este médico já possui um agendamento nesse horário",
+      });
+    }
+
+    const sqlInsert = `
+      INSERT INTO agendamento
+      (usuario_id, medico_id, data, hora, status)
+      VALUES (?, ?, ?, ?, 'agendado')
+    `;
+
+    db.query(sqlInsert, [usuario_id, medico_id, data, hora], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({
+          erro: "Erro ao salvar agendamento",
+        });
+      }
+
+      res.status(201).json({
+        mensagem: "Agendamento criado com sucesso",
+        id: result.insertId,
+      });
+    });
+  });
 });
-
-
 
 /* =========================
    ATUALIZAR AGENDAMENTO
 ========================= */
-router.put('/:id', authMiddleware, (req, res) => {
+router.put("/:id", authMiddleware, (req, res) => {
   const usuarioId = req.usuarioId;
   const agendamentoId = req.params.id;
-  const { data, horario, descricao } = req.body;
+  const { data, hora, status } = req.body;
 
-  if (!data || !horario || !descricao) {
-    return res.status(400).json({ erro: 'Preencha todos os campos' });
+  if (!data || !hora) {
+    return res.status(400).json({ erro: "Preencha data e hora" });
   }
 
   db.query(
-    `UPDATE agendamentos 
-     SET data = ?, horario = ?, descricao = ?
+    `UPDATE agendamento
+     SET data = ?, hora = ?, status = ?
      WHERE id = ? AND usuario_id = ?`,
-    [data, horario, descricao, agendamentoId, usuarioId],
+    [data, hora, status || "agendado", agendamentoId, usuarioId],
     (err, result) => {
-      if (err) return res.status(500).json({ erro: 'Erro ao atualizar' });
+      if (err) return res.status(500).json({ erro: "Erro ao atualizar" });
 
       if (result.affectedRows === 0) {
-        return res.status(403).json({ erro: 'Sem permissão' });
+        return res.status(403).json({ erro: "Sem permissão" });
       }
 
-      res.json({ mensagem: 'Agendamento atualizado com sucesso' });
+      res.json({ mensagem: "Agendamento atualizado com sucesso" });
     }
   );
 });
@@ -176,21 +150,111 @@ router.put('/:id', authMiddleware, (req, res) => {
 /* =========================
    EXCLUIR AGENDAMENTO
 ========================= */
-router.delete('/:id', authMiddleware, (req, res) => {
+router.delete("/:id", authMiddleware, (req, res) => {
   const usuarioId = req.usuarioId;
   const agendamentoId = req.params.id;
 
   db.query(
-    'DELETE FROM agendamentos WHERE id = ? AND usuario_id = ?',
+    "DELETE FROM agendamento WHERE id = ? AND usuario_id = ?",
     [agendamentoId, usuarioId],
     (err, result) => {
-      if (err) return res.status(500).json({ erro: 'Erro ao excluir' });
+      if (err) return res.status(500).json({ erro: "Erro ao excluir" });
 
       if (result.affectedRows === 0) {
-        return res.status(403).json({ erro: 'Sem permissão' });
+        return res.status(403).json({ erro: "Sem permissão" });
       }
 
-      res.json({ mensagem: 'Agendamento excluído com sucesso' });
+      res.json({ mensagem: "Agendamento excluído com sucesso" });
+    }
+  );
+});
+
+/* =========================
+   LISTAR TODOS (ADMIN)
+========================= */
+router.get("/admin", authMiddleware, verificarAdmin, (req, res) => {
+  const sql = `
+    SELECT 
+      a.id,
+      a.data,
+      a.hora,
+      a.status,
+      u.nome AS paciente_nome,
+      m.nome AS medico_nome,
+      m.especialidade
+    FROM agendamento a
+    JOIN usuario u ON a.usuario_id = u.id
+    JOIN medico m ON a.medico_id = m.id
+    ORDER BY a.data, a.hora
+  `;
+
+  db.query(sql, (err, rows) => {
+    if (err) {
+      console.error("ERRO MYSQL (admin list):", err);
+      return res.status(500).json({ erro: "Erro ao buscar agendamentos (admin)" });
+    }
+
+    res.json(rows);
+  });
+});
+
+/* =========================
+   ALTERAR STATUS (ADMIN)
+========================= */
+router.put("/admin/:id/status", authMiddleware, verificarAdmin, (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const statusValidos = ["agendado", "confirmado", "cancelado", "finalizado"];
+
+  if (!statusValidos.includes(status)) {
+    return res.status(400).json({ erro: "Status inválido" });
+  }
+
+  db.query(
+    "UPDATE agendamento SET status = ? WHERE id = ?",
+    [status, id],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ erro: "Erro ao atualizar status" });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ erro: "Agendamento não encontrado" });
+      }
+
+      res.json({ mensagem: "Status atualizado com sucesso" });
+    }
+  );
+});
+
+/*ADMIN- ALTERAR STATUS */
+
+router.put("/admin/:id/status", authMiddleware, verificarAdmin, (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const statusValidos = ["agendado", "confirmado", "cancelado", "concluido"];
+
+  if (!statusValidos.includes(status)) {
+    return res.status(400).json({ erro: "Status inválido" });
+  }
+
+  db.query(
+    "UPDATE agendamento SET status = ? WHERE id = ?",
+    [status, id],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ erro: "Erro ao atualizar status" });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ erro: "Agendamento não encontrado" });
+      }
+
+      res.json({ mensagem: "Status atualizado com sucesso" });
     }
   );
 });

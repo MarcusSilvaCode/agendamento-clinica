@@ -24,12 +24,22 @@ form.addEventListener('submit', async (e) => {
     // 🔐 salvar token (vamos usar depois)
     localStorage.setItem('token', data.token);
     localStorage.setItem('usuarioNome', data.usuario.nome);
+    localStorage.setItem('usuarioTipo', data.usuario.tipo);
+
+    if (data.usuario.tipo === 'admin') {
+      window.location.href = '/frontend/admin/admin.html';
+      return;
+    }
+    else{
+      window.location.href = '/frontend/paciente/index.html';
+      return;
+    }
 
     mostrarMensagem('Login realizado com sucesso!', 'sucesso');
 
     // redirecionar (ex: tela principal)
     setTimeout(() => {
-      window.location.href = 'index.html';
+      window.location.href = '/frontend/paciente/index.html';
     }, 1000);
 
   } catch (error) {

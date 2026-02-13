@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel Administrativo | Clínica</title>
+  <link rel="stylesheet" href="/frontend/css/style.css" />
+</head>
+<body>
+
+  <div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <h2>Clínica+</h2>
+
+      <nav>
+        <a href="#" class="active">Dashboard</a>
+        <a href="#">Pacientes</a>
+        <a href="#">Médicos</a>
+        <a href="#" id="btnLogoutSidebar">Sair</a>
+      </nav>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="admin-content">
+
+      <div class="topbar">
+        <h1>Painel Administrativo</h1>
+        <button id="btnLogout">Sair</button>
+      </div>
+
+      <!-- CARDS DE ESTATÍSTICAS -->
+      <div class="stats">
+
+        <div class="stat-card">
+          <h3>Total de Agendamentos</h3>
+          <p id="totalAgendamentos">0</p>
+        </div>
+
+        <div class="stat-card confirmados">
+          <h3>Confirmados</h3>
+          <p id="totalConfirmados">0</p>
+        </div>
+
+        <div class="stat-card cancelados">
+          <h3>Cancelados</h3>
+          <p id="totalCancelados">0</p>
+        </div>
+
+      </div>
+
+      <!-- TABELA -->
+      <div class="tabela-container">
+
+        <h2>Todos os Agendamentos</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Paciente</th>
+              <th>Médico</th>
+              <th>Especialidade</th>
+              <th>Data</th>
+              <th>Hora</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody id="listaAdmin">
+            <!-- Preenchido pelo JS -->
+          </tbody>
+        </table>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <script src="/frontend/js/admin.js"></script>
+
+</body>
+</html>
