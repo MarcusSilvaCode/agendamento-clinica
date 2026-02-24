@@ -118,8 +118,8 @@ Marcus Silva
 ![10acb407-b714-42eb-ae60-8c18c1a4b45a](https://github.com/user-attachments/assets/c52d9232-ed42-4ad3-ae10-b9b2ecf23607)
 ![2b9a7fe6-bf5a-4b68-a976-4775a54d5c45](https://github.com/user-attachments/assets/8c3c9468-1aab-4ada-af07-eb9df0f39950)
 ![07773e0c-2b23-4f67-b74c-15a059d4e158](https://github.com/user-attachments/assets/93837807-b78b-4b0c-bd2d-66770229703a)
-
-
+![b82bf797-4c52-4cc8-a4f4-432134012a74](https://github.com/user-attachments/assets/162239e7-19b3-46e8-9115-ac112ced6c3d)
+![554fca9c-4df3-4f7d-abad-188e94a6fe4a](https://github.com/user-attachments/assets/17839b70-8ede-46a0-8074-0522340561cd)
 
 
 Estudante de Sistemas de Informação  
